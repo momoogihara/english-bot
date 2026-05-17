@@ -1,113 +1,127 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>English Conversation Bot</title>
+<meta charset="UTF-8">
+<title>Chat UI</title>
 
-  <style>
-   .container {
+<style>
+body {
+  margin: 0;
+  font-family: sans-serif;
   display: flex;
-  height: 90vh;
+  height: 100vh;
+}
+
+/* 左チャット */
+.chat-container {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  background: #f5f5f5;
 }
 
 .chat-box {
-  flex: 2;
-  padding: 10px;
-  overflow-y: auto;
-  background: #f7f7f7;
-}
-
-.side-panel {
   flex: 1;
+  overflow-y: auto;
   padding: 10px;
-  border-left: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
 }
 
+/* 吹き出し */
 .message {
   max-width: 70%;
-  padding: 10px;
-  margin: 5px;
-  border-radius: 10px;
+  padding: 10px 14px;
+  margin: 6px;
+  border-radius: 18px;
+  font-size: 14px;
 }
 
 .user {
-  background: #daf7a6;
-  margin-left: auto;
-  text-align: right;
+  align-self: flex-end;
+  background: #dcf8c6;
+  border-bottom-right-radius: 4px;
 }
 
 .bot {
-  background: #fff;
-  margin-right: auto;
+  align-self: flex-start;
+  background: white;
+  border-bottom-left-radius: 4px;
 }
-  </style>
+
+/* 入力 */
+.input-area {
+  display: flex;
+  padding: 10px;
+  background: #ddd;
+}
+
+input {
+  flex: 1;
+  padding: 10px;
+}
+
+/* 右パネル */
+.side-panel {
+  flex: 1;
+  background: #fff;
+  padding: 15px;
+  border-left: 1px solid #ccc;
+}
+</style>
 </head>
+
 <body>
-  <h1>English Conversation Bot</h1>
-  <!-- Chat area -->
+
+<div class="chat-container">
+
   <div id="chat-box" class="chat-box"></div>
 
-  <!-- Right panel -->
-  <div class="side-panel">
-    <h3>Corrected Sentence</h3>
-    <div id="corrected"></div>
-
-    <h3>Explanation</h3>
-    <div id="explanation"></div>
+  <div class="input-area">
+    <input id="input" placeholder="Type message..." />
+    <button onclick="sendMessage()">Send</button>
   </div>
+
 </div>
 
-<input id="input" type="text" placeholder="Type message..." />
-  <script>
-    const chatBox = document.getElementById("chat-box");
+<div class="side-panel">
+  <h3>Corrected Sentence</h3>
+  <div id="corrected"></div>
+
+  <h3>Explanation</h3>
+  <div id="explanation"></div>
+</div>
+
+<script>
+const chatBox = document.getElementById("chat-box");
 const input = document.getElementById("input");
-
-let history = [];
-
-input.addEventListener("keydown", function (e) {
-  if (e.key === "Enter") {
-    sendMessage();
-  }
-});
-
-async function sendMessage() {
-  const text = input.value;
-  if (!text) return;
-
-  // User message
-  addMessage("user", text);
-  input.value = "";
-
-  const res = await fetch("/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: text }),
-  });
-
-  const data = await res.json();
-
-  // Bot message
-  addMessage("bot", data.reply);
-
-  // Right panel update
-  document.getElementById("corrected").innerText = data.corrected_sentence;
-  document.getElementById("explanation").innerText = data.explanation;
-}
 
 function addMessage(role, text) {
   const div = document.createElement("div");
   div.classList.add("message", role);
   div.innerText = text;
   chatBox.appendChild(div);
-
   chatBox.scrollTop = chatBox.scrollHeight;
 }
-input.addEventListener("keydown", function (e) {
-  if (e.key === "Enter") {
-    sendMessage();
-  }
+
+function sendMessage() {
+  const text = input.value;
+  if (!text) return;
+
+  addMessage("user", text);
+
+  // 仮Bot返信
+  setTimeout(() => {
+    addMessage("bot", "MOMO: " + text);
+  }, 500);
+
+  input.value = "";
+}
+
+input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") sendMessage();
 });
-  </script>
+</script>
+
 </body>
 </html>
